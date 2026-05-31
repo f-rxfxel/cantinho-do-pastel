@@ -38,7 +38,8 @@ export function FinalizeOrderModal({ order, isOpen, onClose, onConfirm }: Finali
 
   const paymentMethods: { id: PaymentMethodType; label: string; icon: any }[] = [
     { id: 'dinheiro', label: 'Dinheiro', icon: Banknote },
-    { id: 'cartao', label: 'Cartão', icon: CreditCard },
+    { id: 'debito', label: 'Débito', icon: CreditCard },
+    { id: 'credito', label: 'Crédito', icon: CreditCard },
     { id: 'pix', label: 'PIX', icon: QrCode },
   ]
 
@@ -92,7 +93,7 @@ export function FinalizeOrderModal({ order, isOpen, onClose, onConfirm }: Finali
           {/* Payment Selection */}
           <div>
             <p className="text-xs font-bold uppercase text-muted-foreground tracking-wider mb-3">Forma de Pagamento</p>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {paymentMethods.map((method) => {
                 const Icon = method.icon
                 return (

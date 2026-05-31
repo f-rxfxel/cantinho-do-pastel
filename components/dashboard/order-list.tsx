@@ -129,14 +129,21 @@ export function OrderList({ orders, onFinalize, onEdit, onRefresh }: OrderListPr
                         {order.items.map((item, idx) => (
                           <div 
                             key={idx}
-                            className="flex items-center gap-2 bg-secondary/50 border border-border/50 px-2 py-1 rounded-lg"
+                            className="flex flex-col bg-secondary/50 border border-border/50 px-3 py-1.5 rounded-lg"
                           >
-                            <span className="text-xs font-bold text-primary">
-                              {item.quantity}x
-                            </span>
-                            <span className="text-xs font-medium text-foreground">
-                              {item.name}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-primary">
+                                {item.quantity}x
+                              </span>
+                              <span className="text-xs font-medium text-foreground">
+                                {item.name}
+                              </span>
+                            </div>
+                            {item.extras && item.extras.length > 0 && (
+                              <span className="text-[10px] text-muted-foreground italic mt-0.5 ml-4">
+                                + {item.extras.join(', ')}
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>

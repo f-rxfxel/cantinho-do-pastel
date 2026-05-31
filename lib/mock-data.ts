@@ -64,7 +64,9 @@ export const mockOrders: Order[] = [
     orderNumber: 1042,
     customerName: 'Maria Silva',
     items: [
-      { id: '1a', name: 'Pastel de Carne', quantity: 3, price: 9, extras: ['Catupiry', 'Bacon'] },
+      { id: '1a1', name: 'Pastel de Carne', quantity: 1, price: 9, extras: ['Catupiry'] },
+      { id: '1a2', name: 'Pastel de Carne', quantity: 1, price: 9, extras: ['Bacon'] },
+      { id: '1a3', name: 'Pastel de Carne', quantity: 1, price: 9 },
       { id: '1b', name: 'Pastel de Queijo (Milho)', quantity: 2, price: 5, size: 'medio' },
       { id: '1c', name: 'Suco de Laranja', quantity: 2, price: 10, size: '400ml' },
     ],
@@ -79,7 +81,8 @@ export const mockOrders: Order[] = [
     orderNumber: 1041,
     customerName: 'João Santos',
     items: [
-      { id: '2a', name: 'Pastel de Frango', quantity: 2, price: 9 },
+      { id: '2a1', name: 'Pastel de Frango', quantity: 1, price: 9 },
+      { id: '2a2', name: 'Pastel de Frango', quantity: 1, price: 9 },
       { id: '2b', name: 'Pastel de Mussarela', quantity: 2, price: 9, extras: ['Cheddar'] },
       { id: '2c', name: 'Suco de Abacaxi', quantity: 2, price: 8, size: '300ml' },
     ],
@@ -110,7 +113,8 @@ export const mockOrders: Order[] = [
     orderNumber: 1039,
     customerName: 'Carlos Oliveira',
     items: [
-      { id: '4a', name: 'Pastel de Carne (Milho)', quantity: 4, price: 8, size: 'grande', extras: ['Ovo', 'Cebola'] },
+      { id: '4a1', name: 'Pastel de Carne (Milho)', quantity: 2, price: 8, size: 'grande', extras: ['Ovo'] },
+      { id: '4a2', name: 'Pastel de Carne (Milho)', quantity: 2, price: 8, size: 'grande', extras: ['Cebola'] },
       { id: '4b', name: 'Churros', quantity: 2, price: 8 },
     ],
     total: 52.00,
@@ -138,7 +142,8 @@ export const mockOrders: Order[] = [
     orderNumber: 1037,
     customerName: 'Roberto Alves',
     items: [
-      { id: '6a', name: 'Pastel de Queijo Minas', quantity: 3, price: 9, extras: ['Bacon', 'Calabresa'] },
+      { id: '6a1', name: 'Pastel de Queijo Minas', quantity: 1, price: 9, extras: ['Bacon'] },
+      { id: '6a2', name: 'Pastel de Queijo Minas', quantity: 2, price: 9, extras: ['Calabresa'] },
       { id: '6b', name: 'Brigadeiro', quantity: 2, price: 9, extras: ['Creme Ninho'] },
     ],
     total: 57.00,
@@ -250,8 +255,8 @@ export const mockHourlySales: HourlySale[] = [
 
 export const mockPaymentMethods: PaymentMethod[] = [
   { method: 'PIX', count: 58, percentage: 45.7 },
-  { method: 'Cartão Crédito', count: 35, percentage: 27.6 },
-  { method: 'Cartão Débito', count: 22, percentage: 17.3 },
+  { method: 'Crédito', count: 35, percentage: 27.6 },
+  { method: 'Débito', count: 22, percentage: 17.3 },
   { method: 'Dinheiro', count: 12, percentage: 9.4 },
 ]
 
@@ -278,7 +283,7 @@ export const mockCustomers: Customer[] = [
 
 export const mockTransactions: FinancialTransaction[] = [
   { id: 't1', type: 'inflow', category: 'Venda', amount: 62.00, description: 'Pedido #1042', date: new Date(), paymentMethod: 'pix' },
-  { id: 't2', type: 'inflow', category: 'Venda', amount: 58.00, description: 'Pedido #1041', date: new Date(), paymentMethod: 'cartao' },
+  { id: 't2', type: 'inflow', category: 'Venda', amount: 58.00, description: 'Pedido #1041', date: new Date(), paymentMethod: 'debito' },
   { id: 't3', type: 'outflow', category: 'Insumos', amount: 150.00, description: 'Compra de farinha e óleo', date: new Date() },
   { id: 't4', type: 'outflow', category: 'Troco', amount: 50.00, description: 'Reposição de troco', date: new Date() },
 ]

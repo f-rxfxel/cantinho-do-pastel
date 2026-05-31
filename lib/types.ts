@@ -29,7 +29,7 @@ export type OrderStatus =
   | 'completed'
   | 'canceled'
 
-export type PaymentMethodType = 'dinheiro' | 'cartao' | 'pix'
+export type PaymentMethodType = 'dinheiro' | 'debito' | 'credito' | 'pix'
 
 export interface FinancialTransaction {
   id: string

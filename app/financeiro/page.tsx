@@ -266,7 +266,7 @@ export default function FinanceiroPage() {
                   <CardTitle className="text-base font-semibold">Vendas por Pagamento</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {['pix', 'cartao', 'dinheiro'].map((method) => {
+                  {['pix', 'debito', 'credito', 'dinheiro'].map((method) => {
                     const amount = transactions
                       .filter(t => t.paymentMethod === method)
                       .reduce((sum, t) => sum + t.amount, 0)
