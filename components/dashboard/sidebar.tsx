@@ -45,8 +45,8 @@ export function Sidebar() {
           <Cookie className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-sidebar-foreground">Pastelaria</h1>
-          <p className="text-xs text-muted-foreground">Premium</p>
+          <h1 className="text-xl font-bold text-sidebar-foreground">Pastelaria</h1>
+          <p className="text-sm text-muted-foreground">Premium</p>
         </div>
       </div>
 

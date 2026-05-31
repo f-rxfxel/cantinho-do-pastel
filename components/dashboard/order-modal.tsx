@@ -8,7 +8,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { menuItems, extras } from '@/lib/mock-data'
+import { extras } from '@/lib/mock-data'
+import { useMenuItems } from '@/components/menu-items-provider'
 import { cn } from '@/lib/utils'
 import {
   Plus,
@@ -21,7 +22,7 @@ import {
   Coffee,
   Cookie,
 } from 'lucide-react'
-import type { Order, OrderItem } from '@/lib/types'
+import type { MenuItem, Order } from '@/lib/types'
 import { toast } from 'sonner'
 
 type SelectedSize = 'pequeno' | 'medio' | 'grande' | '300ml' | '400ml' | '500ml' | 'unico'
@@ -45,6 +46,7 @@ interface OrderModalProps {
 }
 
 export function OrderModal({ order, isOpen, onClose, onConfirm }: OrderModalProps) {
+  const { items: menuItems } = useMenuItems()
   const [customerName, setCustomerName] = useState('')
   const [notes, setNotes] = useState('')
   const [cart, setCart] = useState<CartItem[]>([])
@@ -85,7 +87,9 @@ export function OrderModal({ order, isOpen, onClose, onConfirm }: OrderModalProp
     { id: 'churros', name: 'Churros', icon: Cookie },
   ]
 
-  const filteredItems = menuItems.filter(item => item.category === selectedCategory)
+  const filteredItems = menuItems.filter(
+    item => item.category === selectedCategory && item.available
+  )
   
   const simpleExtras = extras.filter(e => e.type === 'simple')
   const specialExtras = extras.filter(e => e.type === 'special')
@@ -101,7 +105,7 @@ export function OrderModal({ order, isOpen, onClose, onConfirm }: OrderModalProp
     return [...simpleExtras, ...specialExtras]
   }
 
-  const getItemPrice = (item: typeof menuItems[0], size: SelectedSize): number => {
+  const getItemPrice = (item: MenuItem, size: SelectedSize): number => {
     if (item.prices.unico) return item.prices.unico
     return item.prices[size as keyof typeof item.prices] || 0
   }
@@ -113,7 +117,7 @@ export function OrderModal({ order, isOpen, onClose, onConfirm }: OrderModalProp
     }, 0)
   }
 
-  const addToCart = (item: typeof menuItems[0]) => {
+  const addToCart = (item: MenuItem) => {
     const price = getItemPrice(item, selectedSize)
     const extrasPrice = getExtrasTotal()
     

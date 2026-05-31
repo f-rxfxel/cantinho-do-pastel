@@ -1,10 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Header } from '@/components/dashboard/header'
-import { menuItems, extras } from '@/lib/mock-data'
+import { extras } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import { useMenuItems } from '../../components/menu-items-provider'
+import type { MenuItem } from '@/lib/types'
 import {
   Search,
   Edit2,
@@ -13,11 +34,33 @@ import {
   Cookie,
   UtensilsCrossed,
   Coffee,
+  Plus,
+  Trash2,
 } from 'lucide-react'
 
 export default function CardapioPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const { items, upsertItem, deleteItem, setAvailability } = useMenuItems()
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
+  const [formError, setFormError] = useState<string | null>(null)
+  const [formState, setFormState] = useState({
+    id: '',
+    name: '',
+    category: 'pastel-milho' as MenuItem['category'],
+    description: '',
+    available: true,
+    prices: {
+      pequeno: '',
+      medio: '',
+      grande: '',
+      '300ml': '',
+      '400ml': '',
+      '500ml': '',
+      unico: '',
+    },
+  })
 
   const categories = [
     { id: 'all', name: 'Todos', icon: Cookie },
@@ -28,7 +71,7 @@ export default function CardapioPage() {
     { id: 'churros', name: 'Churros', icon: Cookie },
   ]
 
-  const filteredItems = menuItems.filter(item => {
+  const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory
     return matchesSearch && matchesCategory
@@ -37,6 +80,139 @@ export default function CardapioPage() {
   const simpleExtras = extras.filter(e => e.type === 'simple')
   const specialExtras = extras.filter(e => e.type === 'special')
   const doceExtras = extras.filter(e => e.type === 'doce')
+
+  const categoryOptions = categories.filter(category => category.id !== 'all')
+
+  const priceFieldsByCategory: Record<MenuItem['category'], Array<{ key: keyof MenuItem['prices']; label: string }>> = {
+    'pastel-milho': [
+      { key: 'pequeno', label: 'Pequeno' },
+      { key: 'medio', label: 'Médio' },
+      { key: 'grande', label: 'Grande' },
+    ],
+    'pastel-trigo': [{ key: 'unico', label: 'Preço único' }],
+    'pastel-doce': [{ key: 'unico', label: 'Preço único' }],
+    'suco': [
+      { key: '300ml', label: '300ml' },
+      { key: '400ml', label: '400ml' },
+      { key: '500ml', label: '500ml' },
+    ],
+    'churros': [{ key: 'unico', label: 'Preço único' }],
+  }
+
+  const parsePrice = (value: string) => {
+    const normalized = value.trim().replace(',', '.')
+    if (!normalized) return undefined
+    const parsed = Number.parseFloat(normalized)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
+
+  const buildPrices = () => {
+    const fields = priceFieldsByCategory[formState.category]
+    return fields.reduce<MenuItem['prices']>((acc, field) => {
+      const parsed = parsePrice(formState.prices[field.key] || '')
+      if (parsed !== undefined) {
+        acc[field.key] = parsed
+      }
+      return acc
+    }, {})
+  }
+
+  const getNormalizedId = (name: string, category: string) => {
+    const base = `${category}-${name}`
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+    return base || `item-${Date.now()}`
+  }
+
+  const openCreateForm = () => {
+    setEditingItem(null)
+    setFormError(null)
+    setFormState({
+      id: '',
+      name: '',
+      category: 'pastel-milho',
+      description: '',
+      available: true,
+      prices: {
+        pequeno: '',
+        medio: '',
+        grande: '',
+        '300ml': '',
+        '400ml': '',
+        '500ml': '',
+        unico: '',
+      },
+    })
+    setIsFormOpen(true)
+  }
+
+  const openEditForm = (item: MenuItem) => {
+    setEditingItem(item)
+    setFormError(null)
+    setFormState({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      description: item.description || '',
+      available: item.available,
+      prices: {
+        pequeno: item.prices.pequeno?.toString() || '',
+        medio: item.prices.medio?.toString() || '',
+        grande: item.prices.grande?.toString() || '',
+        '300ml': item.prices['300ml']?.toString() || '',
+        '400ml': item.prices['400ml']?.toString() || '',
+        '500ml': item.prices['500ml']?.toString() || '',
+        unico: item.prices.unico?.toString() || '',
+      },
+    })
+    setIsFormOpen(true)
+  }
+
+  const handleSaveItem = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const name = formState.name.trim()
+    if (!name) {
+      setFormError('Informe o nome do item.')
+      return
+    }
+
+    const prices = buildPrices()
+    const hasValidPrice = Object.values(prices).some(price => price && price > 0)
+    if (!hasValidPrice) {
+      setFormError('Informe pelo menos um preço válido.')
+      return
+    }
+
+    const baseId = editingItem?.id || getNormalizedId(name, formState.category)
+    const resolvedId = !editingItem && items.some(item => item.id === baseId)
+      ? `${baseId}-${Date.now()}`
+      : baseId
+
+    const nextItem: MenuItem = {
+      id: resolvedId,
+      name,
+      category: formState.category,
+      description: formState.description.trim() || undefined,
+      prices,
+      available: formState.available,
+    }
+
+    upsertItem(nextItem)
+
+    setIsFormOpen(false)
+    setEditingItem(null)
+  }
+
+  const handleDeleteItem = (itemId: string) => {
+    deleteItem(itemId)
+  }
+
+  const toggleAvailability = (itemId: string, value: boolean) => {
+    setAvailability(itemId, value)
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -50,6 +226,9 @@ export default function CardapioPage() {
           {/* Search and Filters */}
           <div className="glass rounded-xl p-4 mb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <Button onClick={openCreateForm} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                </Button>
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -84,18 +263,27 @@ export default function CardapioPage() {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Items List */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Produtos</h3>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-lg font-semibold text-foreground">Produtos</h3>
+              </div>
               <div className="space-y-3">
+                {filteredItems.length === 0 && (
+                  <div className="glass rounded-xl p-6 text-center text-sm text-muted-foreground">
+                    Nenhum item encontrado para os filtros atuais.
+                  </div>
+                )}
                 {filteredItems.map((item) => (
                   <div key={item.id} className="glass rounded-xl p-4">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="font-medium text-foreground">{item.name}</h4>
-                          <span className={cn(
-                            'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs',
-                            item.available ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                          )}>
+                          <span
+                            className={cn(
+                              'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs',
+                              item.available ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                            )}
+                          >
                             {item.available ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                             {item.available ? 'Disponível' : 'Indisponível'}
                           </span>
@@ -140,10 +328,49 @@ export default function CardapioPage() {
                             </span>
                           )}
                         </div>
+                        <div className="mt-3 flex items-center gap-2">
+                          <Switch
+                            checked={item.available}
+                            onCheckedChange={(value) => toggleAvailability(item.id, value)}
+                          />
+                          <span className="text-xs text-muted-foreground">Disponível para venda</span>
+                        </div>
                       </div>
-                      <button className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                        <Edit2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => openEditForm(item)}
+                          aria-label={`Editar ${item.name}`}
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              aria-label={`Remover ${item.name}`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remover item</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja remover {item.name} do cardápio? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteItem(item.id)}>
+                                Remover
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -206,6 +433,121 @@ export default function CardapioPage() {
           </div>
         </main>
       </div>
+      <Dialog
+        open={isFormOpen}
+        onOpenChange={(open) => {
+          setIsFormOpen(open)
+          if (!open) {
+            setEditingItem(null)
+            setFormError(null)
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Editar item' : 'Novo item'}</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={handleSaveItem}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground font-medium">Nome</label>
+                <input
+                  type="text"
+                  value={formState.name}
+                  onChange={(event) => setFormState(state => ({ ...state, name: event.target.value }))}
+                  placeholder="Ex: Pastel de carne"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground font-medium">Categoria</label>
+                <select
+                  value={formState.category}
+                  onChange={(event) =>
+                    setFormState(state => ({
+                      ...state,
+                      category: event.target.value as MenuItem['category'],
+                    }))
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                >
+                  {categoryOptions.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground font-medium">Descrição</label>
+              <textarea
+                value={formState.description}
+                onChange={(event) =>
+                  setFormState(state => ({ ...state, description: event.target.value }))
+                }
+                placeholder="Detalhes do item (opcional)"
+                className="min-h-24 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-foreground">Preços</div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {priceFieldsByCategory[formState.category].map((field) => (
+                  <div key={field.key} className="space-y-1">
+                    <label className="text-xs text-muted-foreground font-medium">{field.label}</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={formState.prices[field.key] || ''}
+                      onChange={(event) =>
+                        setFormState(state => ({
+                          ...state,
+                          prices: { ...state.prices, [field.key]: event.target.value },
+                        }))
+                      }
+                      placeholder="0,00"
+                      className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={formState.available}
+                onCheckedChange={(value) =>
+                  setFormState(state => ({ ...state, available: value }))
+                }
+              />
+              <span className="text-sm text-muted-foreground">Disponível para venda</span>
+            </div>
+
+            {formError && (
+              <p className="text-sm text-destructive">{formError}</p>
+            )}
+
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsFormOpen(false)
+                  setEditingItem(null)
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit">
+                {editingItem ? 'Salvar alterações' : 'Criar item'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

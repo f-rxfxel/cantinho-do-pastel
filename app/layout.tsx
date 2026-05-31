@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { MenuItemsProvider } from '@/components/menu-items-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -50,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark bg-background">
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
-        {children}
+        <MenuItemsProvider>{children}</MenuItemsProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

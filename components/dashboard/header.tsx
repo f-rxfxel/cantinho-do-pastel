@@ -30,12 +30,12 @@ export function Header({ isOpen = true, setIsOpen, title, subtitle }: HeaderProp
         
         <div className="hidden md:flex flex-col">
           {title && (
-            <h1 className="text-base font-bold tracking-tight text-foreground">
+            <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
               {title}
             </h1>
           )}
           {subtitle && (
-            <p className="text-xs text-muted-foreground leading-none mt-1">
+            <p className="text-xs md:text-sm text-muted-foreground leading-none mt-1">
               {subtitle}
             </p>
           )}
