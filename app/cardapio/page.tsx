@@ -42,15 +42,11 @@ export default function CardapioPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 lg:pl-64">
-        <Header />
-        <main className="p-6 pt-20">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Cardápio</h1>
-              <p className="text-muted-foreground">Cantinho do Pastel - Monte do seu jeito!</p>
-            </div>
-          </div>
-
+        <Header 
+          title="Cardápio" 
+          subtitle="Cantinho do Pastel - Monte do seu jeito!"
+        />
+        <main className="p-6">
           {/* Search and Filters */}
           <div className="glass rounded-xl p-4 mb-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">

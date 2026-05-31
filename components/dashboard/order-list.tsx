@@ -5,32 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { 
-  RefreshCw, 
-  Plus, 
-  Edit, 
-  CheckCircle2, 
-  Clock, 
-  User, 
-  DollarSign,
+import {
+  RefreshCw,
+  Plus,
+  Edit,
+  CheckCircle2,
+  Clock,
   ShoppingCart,
   Search,
-  X
+  X,
 } from 'lucide-react'
-import type { Order, OrderStatus } from '@/lib/types'
-import { cn } from '@/lib/utils'
+import type { Order } from '@/lib/types'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import Link from 'next/link'
 
 interface OrderListProps {
   orders: Order[]
   onFinalize: (order: Order) => void
   onEdit: (order: Order) => void
   onRefresh: () => void
+  onCreate: () => void
 }
 
-export function OrderList({ orders, onFinalize, onEdit, onRefresh }: OrderListProps) {
+export function OrderList({ orders, onFinalize, onEdit, onRefresh, onCreate }: OrderListProps) {
   const [searchTerm, setSearchTerm] = useState('')
 
   const activeOrders = orders
@@ -79,7 +76,7 @@ export function OrderList({ orders, onFinalize, onEdit, onRefresh }: OrderListPr
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Atualizar</span>
             </Button>
-            <Button size="sm" onClick={() => (window.location.href = '/novo-pedido')} className="h-9 w-9 p-0 sm:w-auto sm:px-3 sm:gap-2 font-medium">
+            <Button size="sm" onClick={onCreate} className="h-9 w-9 p-0 sm:w-auto sm:px-3 sm:gap-2 font-medium">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">Novo</span>
             </Button>

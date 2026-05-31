@@ -15,12 +15,15 @@ import {
   Plus,
   Filter,
   Download,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
-import { mockOrders, mockTransactions } from '@/lib/mock-data'
+import { mockOrders, mockTransactions, mockDailyMetrics } from '@/lib/mock-data'
+import { MetricsCards } from '@/components/dashboard/metrics-cards'
 import type { FinancialTransaction, PaymentMethodType, Order } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
+import { format, addDays, subDays } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
   Dialog,
@@ -30,12 +33,19 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { toast } from 'sonner'
 
 export default function FinanceiroPage() {
   const [transactions, setTransactions] = useState<FinancialTransaction[]>(mockTransactions)
   const [isOutflowModalOpen, setIsOutflowModalOpen] = useState(false)
   const [outflowData, setOutflowData] = useState({ amount: '', description: '', category: 'Insumos' })
+  const [date, setDate] = useState<Date | undefined>(new Date())
 
   // Finalized orders for today (mocking today)
   const finalizedOrders = mockOrders.filter(o => o.status === 'completed')
@@ -82,24 +92,63 @@ export default function FinanceiroPage() {
     )
   }
 
+  const navigateDate = (amount: number) => {
+    if (date) {
+      setDate(addDays(date, amount))
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 lg:ml-64">
-        <Header />
+        <Header 
+          title="Controle Financeiro" 
+          subtitle="Acompanhe o fluxo de caixa e as vendas do dia."
+        />
         <main className="p-6">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Controle Financeiro</h1>
-              <p className="text-muted-foreground">
-                Acompanhe o fluxo de caixa e as vendas do dia.
-              </p>
-            </div>
+          <div className="mb-6 flex items-center justify-end">
             <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                {format(new Date(), "dd 'de' MMMM", { locale: ptBR })}
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => navigateDate(-1)}
+                  className="h-9 w-9"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn(
+                      "gap-2 justify-start text-left font-normal min-w-[140px]",
+                      !date && "text-muted-foreground"
+                    )}>
+                      <CalendarIcon className="h-4 w-4" />
+                      {date ? format(date, "dd 'de' MMMM", { locale: ptBR }) : <span>Selecione uma data</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => navigateDate(1)}
+                  className="h-9 w-9"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
               <Button 
                 onClick={handleCloseDay}
                 className="bg-amber-600 hover:bg-amber-700 text-white gap-2"
@@ -109,8 +158,13 @@ export default function FinanceiroPage() {
             </div>
           </div>
 
-          {/* Metrics Grid */}
-          <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Metrics Cards */}
+          <div className="mb-8">
+            <MetricsCards metrics={mockDailyMetrics} />
+          </div>
+
+          {/* Cash Flow Summary */}
+          <div className="mb-6 grid gap-4 sm:grid-cols-3">
             <Card className="glass border-glass-border">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -141,17 +195,6 @@ export default function FinanceiroPage() {
                 </div>
                 <div className="mt-2">
                   <p className="text-2xl font-bold text-foreground">R$ {netTotal.toFixed(2)}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="glass border-glass-border">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">Qtd. Pedidos</p>
-                  <ShoppingBag className="h-4 w-4 text-amber-500" />
-                </div>
-                <div className="mt-2">
-                  <p className="text-2xl font-bold text-foreground">{finalizedOrders.length}</p>
                 </div>
               </CardContent>
             </Card>

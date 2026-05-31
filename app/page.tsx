@@ -3,18 +3,16 @@
 import { useState } from 'react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Header } from '@/components/dashboard/header'
-import { MetricsCards } from '@/components/dashboard/metrics-cards'
 import { OrderList } from '@/components/dashboard/order-list'
 import { FinalizeOrderModal } from '@/components/dashboard/finalize-order-modal'
 import { OrderModal } from '@/components/dashboard/order-modal'
 import {
   mockOrders,
-  mockDailyMetrics,
 } from '@/lib/mock-data'
 import type { Order, PaymentMethodType } from '@/lib/types'
 import { toast } from 'sonner'
 
-export default function DashboardPage() {
+export default function PedidosPage() {
   const [isOpen, setIsOpen] = useState(true)
   const [orders, setOrders] = useState<Order[]>(mockOrders)
   
@@ -81,30 +79,16 @@ export default function DashboardPage() {
       {/* Main Content */}
       <div className="flex-1 lg:ml-64">
         {/* Header */}
-        <Header isOpen={isOpen} setIsOpen={setIsOpen} />
+        <Header 
+          isOpen={isOpen} 
+          setIsOpen={setIsOpen} 
+          title="Painel de Atendimento" 
+          subtitle="Gerencie os pedidos ativos e acompanhe a produção."
+        />
 
         {/* Page Content */}
         <main className="p-6">
-          {/* Page Title */}
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Painel de Atendimento</h1>
-              <p className="text-muted-foreground">
-                Gerencie os pedidos ativos e acompanhe a produção.
-              </p>
-            </div>
-            <button 
-              onClick={handleCreateNew}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
-            >
-              Novo Pedido
-            </button>
-          </div>
-
-          {/* Metrics Cards */}
-          <div className="mb-6">
-            <MetricsCards metrics={mockDailyMetrics} />
-          </div>
+          {/* Page Action */}
 
           {/* Active Orders List */}
           <div className="mb-6">
@@ -113,6 +97,7 @@ export default function DashboardPage() {
               onEdit={handleEdit}
               onFinalize={handleOpenFinalize}
               onRefresh={handleRefresh}
+              onCreate={handleCreateNew}
             />
           </div>
         </main>

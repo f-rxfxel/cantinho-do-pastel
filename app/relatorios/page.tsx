@@ -40,13 +40,11 @@ export default function RelatoriosPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 lg:pl-64">
-        <Header />
-        <main className="p-6 pt-20">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
-            <p className="text-muted-foreground">Análise de desempenho do negócio</p>
-          </div>
-
+        <Header 
+          title="Relatórios" 
+          subtitle="Análise de desempenho do negócio"
+        />
+        <main className="p-6">
           {/* KPIs */}
           <div className="grid grid-cols-4 gap-4 mb-6">
             <div className="glass rounded-xl p-4">

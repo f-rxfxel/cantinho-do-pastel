@@ -26,14 +26,10 @@ import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Novo Pedido', href: '/novo-pedido', icon: Plus },
-  { name: 'Pedidos', href: '/pedidos', icon: ClipboardList },
+  { name: 'Pedidos', href: '/', icon: LayoutDashboard },
   { name: 'Financeiro', href: '/financeiro', icon: BarChart3 },
   { name: 'Histórico', href: '/historico', icon: ClipboardList },
-  { name: 'Produção', href: '/producao', icon: ChefHat },
   { name: 'Cardápio', href: '/cardapio', icon: UtensilsCrossed },
-  { name: 'Clientes', href: '/clientes', icon: Users },
   { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ]
 

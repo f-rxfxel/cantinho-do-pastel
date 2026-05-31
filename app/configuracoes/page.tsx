@@ -41,13 +41,11 @@ export default function ConfiguracoesPage() {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       <div className="flex-1 lg:pl-64">
-        <Header />
-        <main className="p-6 pt-20">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
-            <p className="text-muted-foreground">Gerencie as configurações do sistema</p>
-          </div>
-
+        <Header 
+          title="Configurações" 
+          subtitle="Gerencie as configurações do sistema"
+        />
+        <main className="p-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
             {/* Sidebar Tabs */}
             <div className="lg:col-span-1">
