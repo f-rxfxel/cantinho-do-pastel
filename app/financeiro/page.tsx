@@ -44,7 +44,7 @@ import { toast } from 'sonner'
 export default function FinanceiroPage() {
   const [transactions, setTransactions] = useState<FinancialTransaction[]>(mockTransactions)
   const [isOutflowModalOpen, setIsOutflowModalOpen] = useState(false)
-  const [outflowData, setOutflowData] = useState({ amount: '', description: '', category: 'Insumos' })
+  const [outflowData, setOutflowData] = useState({ amount: '', description: '' })
   const [date, setDate] = useState<Date | undefined>(new Date())
 
   // Finalized orders for today (mocking today)
@@ -69,7 +69,7 @@ export default function FinanceiroPage() {
     const newTransaction: FinancialTransaction = {
       id: `t-${Date.now()}`,
       type: 'outflow',
-      category: outflowData.category,
+      category: 'Saída',
       amount: parseFloat(outflowData.amount),
       description: outflowData.description,
       date: new Date()
@@ -77,7 +77,7 @@ export default function FinanceiroPage() {
 
     setTransactions([newTransaction, ...transactions])
     setIsOutflowModalOpen(false)
-    setOutflowData({ amount: '', description: '', category: 'Insumos' })
+    setOutflowData({ amount: '', description: '' })
     toast.success('Saída registrada com sucesso')
   }
 
@@ -242,19 +242,6 @@ export default function FinanceiroPage() {
                             className="w-full rounded-lg border border-border bg-background px-4 py-2"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Categoria</label>
-                          <select
-                            value={outflowData.category}
-                            onChange={(e) => setOutflowData({ ...outflowData, category: e.target.value })}
-                            className="w-full rounded-lg border border-border bg-background px-4 py-2"
-                          >
-                            <option value="Insumos">Insumos</option>
-                            <option value="Troco">Troco</option>
-                            <option value="Limpeza">Limpeza</option>
-                            <option value="Outros">Outros</option>
-                          </select>
-                        </div>
                       </div>
                       <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsOutflowModalOpen(false)}>Cancelar</Button>
@@ -278,8 +265,12 @@ export default function FinanceiroPage() {
                         <div>
                           <p className="font-medium text-foreground">{t.description}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{t.category}</span>
-                            <span>•</span>
+                            {t.type === 'inflow' && (
+                              <>
+                                <span>{t.category}</span>
+                                <span>•</span>
+                              </>
+                            )}
                             <span>{format(t.date, 'HH:mm')}</span>
                             {t.paymentMethod && (
                               <>

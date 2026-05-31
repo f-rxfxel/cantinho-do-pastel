@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from 'react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Header } from '@/components/dashboard/header'
-import { extras } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
 import {
   Dialog,
@@ -24,8 +23,13 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { useMenuItems } from '../../components/menu-items-provider'
-import type { MenuItem } from '@/lib/types'
+import type { MenuItem, Extra } from '@/lib/types'
 import {
   Search,
   Edit2,
@@ -35,16 +39,31 @@ import {
   UtensilsCrossed,
   Coffee,
   Plus,
-  Trash2,
 } from 'lucide-react'
 
 export default function CardapioPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const { items, upsertItem, deleteItem, setAvailability } = useMenuItems()
+  const { 
+    items, 
+    upsertItem, 
+    deleteItem, 
+    setAvailability, 
+    extras, 
+    addExtra, 
+    updateExtra, 
+    deleteExtra 
+  } = useMenuItems()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  
+  // New state for inline adding and editing of extras
+  const [addingExtraType, setAddingExtraType] = useState<'simple' | 'special' | 'doce' | null>(null)
+  const [newExtraName, setNewExtraName] = useState('')
+  const [editingExtraId, setEditingExtraId] = useState<string | null>(null)
+  const [editingExtraName, setEditingExtraName] = useState('')
+
   const [formState, setFormState] = useState({
     id: '',
     name: '',
@@ -80,6 +99,45 @@ export default function CardapioPage() {
   const simpleExtras = extras.filter(e => e.type === 'simple')
   const specialExtras = extras.filter(e => e.type === 'special')
   const doceExtras = extras.filter(e => e.type === 'doce')
+
+  const handleAddExtra = (type: 'simple' | 'special' | 'doce') => {
+    if (!newExtraName.trim()) {
+      setAddingExtraType(null)
+      setNewExtraName('')
+      return
+    }
+
+    const price = type === 'simple' ? 2 : 3
+    const id = `${type}-${newExtraName.toLowerCase().replace(/\s+/g, '-')}`
+    
+    addExtra({
+      id,
+      name: newExtraName.trim(),
+      price,
+      type
+    })
+
+    setAddingExtraType(null)
+    setNewExtraName('')
+  }
+
+  const handleEditExtra = (extra: Extra) => {
+    setEditingExtraId(extra.id)
+    setEditingExtraName(extra.name)
+  }
+
+  const handleUpdateExtra = (extra: Extra) => {
+    if (!editingExtraName.trim()) {
+      setEditingExtraId(null)
+      return
+    }
+
+    updateExtra({
+      ...extra,
+      name: editingExtraName.trim()
+    })
+    setEditingExtraId(null)
+  }
 
   const categoryOptions = categories.filter(category => category.id !== 'all')
 
@@ -352,7 +410,7 @@ export default function CardapioPage() {
                               size="icon"
                               aria-label={`Remover ${item.name}`}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <X className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -382,38 +440,239 @@ export default function CardapioPage() {
               <h3 className="text-lg font-semibold text-foreground">Adicionais</h3>
               
               {/* Simple Extras */}
-              <div className="glass rounded-xl p-4">
+              <div className="glass rounded-xl p-4 group">
                 <h4 className="font-medium text-foreground mb-3">Adicionais Simples - R$ 2,00</h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   {simpleExtras.map((extra) => (
-                    <span key={extra.id} className="rounded-lg bg-muted px-3 py-2 text-sm text-foreground">
-                      {extra.name}
-                    </span>
+                    <div key={extra.id} className="relative group/extra">
+                      {editingExtraId === extra.id ? (
+                        <div className="flex items-center gap-1 rounded-lg bg-blue-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                          <input
+                            autoFocus
+                            type="text"
+                            value={editingExtraName}
+                            onChange={(e) => setEditingExtraName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleUpdateExtra(extra)}
+                            onBlur={() => setEditingExtraId(null)}
+                            className="w-20 bg-transparent border-none text-xs text-blue-400 focus:outline-none"
+                          />
+                          <button 
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleUpdateExtra(extra)}
+                            className="rounded-md p-1 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="inline-block rounded-lg bg-blue-500/20 px-3 py-2 text-sm text-blue-400 transition-colors">
+                            {extra.name}
+                          </span>
+                          {/* Hover Tooltip */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-md bg-popover border border-border p-1 shadow-md opacity-0 group-hover/extra:opacity-100 transition-opacity z-20">
+                            <button
+                              onClick={() => handleEditExtra(extra)}
+                              className="p-1 text-blue-400 hover:bg-blue-500/10 rounded transition-colors"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteExtra(extra.id)}
+                              className="p-1 text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ))}
+                  
+                  {addingExtraType === 'simple' ? (
+                    <div className="flex items-center gap-1 rounded-lg bg-blue-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                      <input
+                        autoFocus
+                        type="text"
+                        placeholder="Nome..."
+                        value={newExtraName}
+                        onChange={(e) => setNewExtraName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddExtra('simple')}
+                        className="w-20 bg-transparent border-none text-xs text-blue-400 focus:outline-none placeholder:text-blue-400/50"
+                      />
+                      <button 
+                        onClick={() => handleAddExtra('simple')}
+                        className="rounded-md p-1 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAddingExtraType('simple')}
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-blue-500/30 px-2 py-2 text-sm text-blue-400/70 hover:border-blue-500 hover:text-blue-400 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                    >
+                      <Plus className="h-4 w-4 transition-transform group-hover/btn:rotate-90" />
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Special Extras */}
-              <div className="glass rounded-xl p-4">
+              <div className="glass rounded-xl p-4 group">
                 <h4 className="font-medium text-foreground mb-3">Adicionais Especiais - R$ 3,00</h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   {specialExtras.map((extra) => (
-                    <span key={extra.id} className="rounded-lg bg-accent/20 px-3 py-2 text-sm text-accent">
-                      {extra.name}
-                    </span>
+                    <div key={extra.id} className="relative group/extra">
+                      {editingExtraId === extra.id ? (
+                        <div className="flex items-center gap-1 rounded-lg bg-accent/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                          <input
+                            autoFocus
+                            type="text"
+                            value={editingExtraName}
+                            onChange={(e) => setEditingExtraName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleUpdateExtra(extra)}
+                            onBlur={() => setEditingExtraId(null)}
+                            className="w-20 bg-transparent border-none text-xs text-accent focus:outline-none"
+                          />
+                          <button 
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleUpdateExtra(extra)}
+                            className="rounded-md p-1 text-accent hover:bg-accent/20 transition-colors"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="inline-block rounded-lg bg-accent/20 px-3 py-2 text-sm text-accent transition-colors">
+                            {extra.name}
+                          </span>
+                          {/* Hover Tooltip */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-md bg-popover border border-border p-1 shadow-md opacity-0 group-hover/extra:opacity-100 transition-opacity z-20">
+                            <button
+                              onClick={() => handleEditExtra(extra)}
+                              className="p-1 text-accent hover:bg-accent/10 rounded transition-colors"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteExtra(extra.id)}
+                              className="p-1 text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ))}
+
+                  {addingExtraType === 'special' ? (
+                    <div className="flex items-center gap-1 rounded-lg bg-accent/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                      <input
+                        autoFocus
+                        type="text"
+                        placeholder="Nome..."
+                        value={newExtraName}
+                        onChange={(e) => setNewExtraName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddExtra('special')}
+                        className="w-20 bg-transparent border-none text-xs text-accent focus:outline-none placeholder:text-accent/50"
+                      />
+                      <button 
+                        onClick={() => handleAddExtra('special')}
+                        className="rounded-md p-1 text-accent hover:bg-accent/20 transition-colors"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAddingExtraType('special')}
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-accent/30 px-2 py-2 text-sm text-accent/70 hover:border-accent hover:text-accent transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                    >
+                      <Plus className="h-4 w-4 transition-transform group-hover/btn:rotate-90" />
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Sweet Extras */}
-              <div className="glass rounded-xl p-4">
+              <div className="glass rounded-xl p-4 group">
                 <h4 className="font-medium text-foreground mb-3">Adicionais Doces - R$ 3,00</h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   {doceExtras.map((extra) => (
-                    <span key={extra.id} className="rounded-lg bg-pink-500/20 px-3 py-2 text-sm text-pink-400">
-                      {extra.name}
-                    </span>
+                    <div key={extra.id} className="relative group/extra">
+                      {editingExtraId === extra.id ? (
+                        <div className="flex items-center gap-1 rounded-lg bg-pink-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                          <input
+                            autoFocus
+                            type="text"
+                            value={editingExtraName}
+                            onChange={(e) => setEditingExtraName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleUpdateExtra(extra)}
+                            onBlur={() => setEditingExtraId(null)}
+                            className="w-20 bg-transparent border-none text-xs text-pink-400 focus:outline-none"
+                          />
+                          <button 
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleUpdateExtra(extra)}
+                            className="rounded-md p-1 text-pink-400 hover:bg-pink-500/20 transition-colors"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <span className="inline-block rounded-lg bg-pink-500/20 px-3 py-2 text-sm text-pink-400 transition-colors">
+                            {extra.name}
+                          </span>
+                          {/* Hover Tooltip */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-md bg-popover border border-border p-1 shadow-md opacity-0 group-hover/extra:opacity-100 transition-opacity z-20">
+                            <button
+                              onClick={() => handleEditExtra(extra)}
+                              className="p-1 text-pink-400 hover:bg-pink-500/10 rounded transition-colors"
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteExtra(extra.id)}
+                              className="p-1 text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   ))}
+
+                  {addingExtraType === 'doce' ? (
+                    <div className="flex items-center gap-1 rounded-lg bg-pink-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                      <input
+                        autoFocus
+                        type="text"
+                        placeholder="Nome..."
+                        value={newExtraName}
+                        onChange={(e) => setNewExtraName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddExtra('doce')}
+                        className="w-20 bg-transparent border-none text-xs text-pink-400 focus:outline-none placeholder:text-pink-400/50"
+                      />
+                      <button 
+                        onClick={() => handleAddExtra('doce')}
+                        className="rounded-md p-1 text-pink-400 hover:bg-pink-500/20 transition-colors"
+                      >
+                        <Check className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setAddingExtraType('doce')}
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-pink-500/30 px-2 py-2 text-sm text-pink-400/70 hover:border-pink-500 hover:text-pink-400 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                    >
+                      <Plus className="h-4 w-4 transition-transform group-hover/btn:rotate-90" />
+                    </button>
+                  )}
                 </div>
               </div>
 

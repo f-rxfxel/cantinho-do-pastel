@@ -16,7 +16,7 @@ import {
   Minus,
   ShoppingCart,
   User,
-  Trash2,
+  X,
   Check,
   UtensilsCrossed,
   Coffee,
@@ -349,7 +349,7 @@ export function OrderModal({ order, isOpen, onClose, onConfirm }: OrderModalProp
                         onClick={() => removeFromCart(item.id)} 
                         className="text-muted-foreground hover:text-red-500 transition-colors p-1"
                       >
-                        <Trash2 className="h-4 w-4"/>
+                        <X className="h-4 w-4"/>
                       </button>
                     </div>
                   </div>
