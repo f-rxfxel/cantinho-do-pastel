@@ -406,11 +406,11 @@ export default function CardapioPage() {
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
-                              variant="destructive"
+                              variant="outline"
                               size="icon"
                               aria-label={`Remover ${item.name}`}
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-4 w-4 text-destructive" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -525,7 +525,7 @@ export default function CardapioPage() {
                   {specialExtras.map((extra) => (
                     <div key={extra.id} className="relative group/extra">
                       {editingExtraId === extra.id ? (
-                        <div className="flex items-center gap-1 rounded-lg bg-accent/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-1 rounded-lg bg-teal-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
                           <input
                             autoFocus
                             type="text"
@@ -533,26 +533,26 @@ export default function CardapioPage() {
                             onChange={(e) => setEditingExtraName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleUpdateExtra(extra)}
                             onBlur={() => setEditingExtraId(null)}
-                            className="w-20 bg-transparent border-none text-xs text-accent focus:outline-none"
+                            className="w-20 bg-transparent border-none text-xs text-teal-400 focus:outline-none"
                           />
                           <button 
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleUpdateExtra(extra)}
-                            className="rounded-md p-1 text-accent hover:bg-accent/20 transition-colors"
+                            className="rounded-md p-1 text-teal-400 hover:bg-teal-500/20 transition-colors"
                           >
                             <Check className="h-4 w-4" />
                           </button>
                         </div>
                       ) : (
                         <>
-                          <span className="inline-block rounded-lg bg-accent/20 px-3 py-2 text-sm text-accent transition-colors">
+                          <span className="inline-block rounded-lg bg-teal-500/20 px-3 py-2 text-sm text-teal-400 transition-colors">
                             {extra.name}
                           </span>
                           {/* Hover Tooltip */}
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-md bg-popover border border-border p-1 shadow-md opacity-0 group-hover/extra:opacity-100 transition-opacity z-20">
                             <button
                               onClick={() => handleEditExtra(extra)}
-                              className="p-1 text-accent hover:bg-accent/10 rounded transition-colors"
+                              className="p-1 text-teal-400 hover:bg-teal-500/10 rounded transition-colors"
                             >
                               <Edit2 className="h-3 w-3" />
                             </button>
@@ -569,7 +569,7 @@ export default function CardapioPage() {
                   ))}
 
                   {addingExtraType === 'special' ? (
-                    <div className="flex items-center gap-1 rounded-lg bg-accent/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                    <div className="flex items-center gap-1 rounded-lg bg-teal-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
                       <input
                         autoFocus
                         type="text"
@@ -577,11 +577,11 @@ export default function CardapioPage() {
                         value={newExtraName}
                         onChange={(e) => setNewExtraName(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddExtra('special')}
-                        className="w-20 bg-transparent border-none text-xs text-accent focus:outline-none placeholder:text-accent/50"
+                        className="w-20 bg-transparent border-none text-xs text-teal-400 focus:outline-none placeholder:text-teal-400/50"
                       />
                       <button 
                         onClick={() => handleAddExtra('special')}
-                        className="rounded-md p-1 text-accent hover:bg-accent/20 transition-colors"
+                        className="rounded-md p-1 text-teal-400 hover:bg-teal-500/20 transition-colors"
                       >
                         <Check className="h-4 w-4" />
                       </button>
@@ -589,7 +589,7 @@ export default function CardapioPage() {
                   ) : (
                     <button
                       onClick={() => setAddingExtraType('special')}
-                      className="flex items-center gap-1 rounded-lg border border-dashed border-accent/30 px-2 py-2 text-sm text-accent/70 hover:border-accent hover:text-accent transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-teal-500/30 px-2 py-2 text-sm text-teal-400/70 hover:border-teal-500 hover:text-teal-400 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
                     >
                       <Plus className="h-4 w-4 transition-transform group-hover/btn:rotate-90" />
                     </button>
@@ -604,7 +604,7 @@ export default function CardapioPage() {
                   {doceExtras.map((extra) => (
                     <div key={extra.id} className="relative group/extra">
                       {editingExtraId === extra.id ? (
-                        <div className="flex items-center gap-1 rounded-lg bg-pink-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-1 rounded-lg bg-purple-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
                           <input
                             autoFocus
                             type="text"
@@ -612,26 +612,26 @@ export default function CardapioPage() {
                             onChange={(e) => setEditingExtraName(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleUpdateExtra(extra)}
                             onBlur={() => setEditingExtraId(null)}
-                            className="w-20 bg-transparent border-none text-xs text-pink-400 focus:outline-none"
+                            className="w-20 bg-transparent border-none text-xs text-purple-400 focus:outline-none"
                           />
                           <button 
                             onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleUpdateExtra(extra)}
-                            className="rounded-md p-1 text-pink-400 hover:bg-pink-500/20 transition-colors"
+                            className="rounded-md p-1 text-purple-400 hover:bg-purple-500/20 transition-colors"
                           >
                             <Check className="h-4 w-4" />
                           </button>
                         </div>
                       ) : (
                         <>
-                          <span className="inline-block rounded-lg bg-pink-500/20 px-3 py-2 text-sm text-pink-400 transition-colors">
+                          <span className="inline-block rounded-lg bg-purple-500/20 px-3 py-2 text-sm text-purple-400 transition-colors">
                             {extra.name}
                           </span>
                           {/* Hover Tooltip */}
                           <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-md bg-popover border border-border p-1 shadow-md opacity-0 group-hover/extra:opacity-100 transition-opacity z-20">
                             <button
                               onClick={() => handleEditExtra(extra)}
-                              className="p-1 text-pink-400 hover:bg-pink-500/10 rounded transition-colors"
+                              className="p-1 text-purple-400 hover:bg-purple-500/10 rounded transition-colors"
                             >
                               <Edit2 className="h-3 w-3" />
                             </button>
@@ -648,7 +648,7 @@ export default function CardapioPage() {
                   ))}
 
                   {addingExtraType === 'doce' ? (
-                    <div className="flex items-center gap-1 rounded-lg bg-pink-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
+                    <div className="flex items-center gap-1 rounded-lg bg-purple-500/20 pl-2 pr-1 py-1 animate-in zoom-in-95 duration-200">
                       <input
                         autoFocus
                         type="text"
@@ -656,11 +656,11 @@ export default function CardapioPage() {
                         value={newExtraName}
                         onChange={(e) => setNewExtraName(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddExtra('doce')}
-                        className="w-20 bg-transparent border-none text-xs text-pink-400 focus:outline-none placeholder:text-pink-400/50"
+                        className="w-20 bg-transparent border-none text-xs text-purple-400 focus:outline-none placeholder:text-purple-400/50"
                       />
                       <button 
                         onClick={() => handleAddExtra('doce')}
-                        className="rounded-md p-1 text-pink-400 hover:bg-pink-500/20 transition-colors"
+                        className="rounded-md p-1 text-purple-400 hover:bg-purple-500/20 transition-colors"
                       >
                         <Check className="h-4 w-4" />
                       </button>
@@ -668,7 +668,7 @@ export default function CardapioPage() {
                   ) : (
                     <button
                       onClick={() => setAddingExtraType('doce')}
-                      className="flex items-center gap-1 rounded-lg border border-dashed border-pink-500/30 px-2 py-2 text-sm text-pink-400/70 hover:border-pink-500 hover:text-pink-400 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
+                      className="flex items-center gap-1 rounded-lg border border-dashed border-purple-500/30 px-2 py-2 text-sm text-purple-400/70 hover:border-purple-500 hover:text-purple-400 transition-all opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
                     >
                       <Plus className="h-4 w-4 transition-transform group-hover/btn:rotate-90" />
                     </button>

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Header } from '@/components/dashboard/header'
 import { cn } from '@/lib/utils'
+import { useTheme } from 'next-themes'
 import {
   Settings,
   Store,
@@ -21,6 +22,12 @@ import {
 export default function ConfiguracoesPage() {
   const [activeTab, setActiveTab] = useState('loja')
   const [saved, setSaved] = useState(false)
+  const { theme, resolvedTheme, setTheme } = useTheme()
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => setIsMounted(true), [])
+
+  const currentTheme = isMounted ? (resolvedTheme ?? theme) : 'dark'
 
   const tabs = [
     { id: 'loja', name: 'Dados da Loja', icon: Store },
@@ -244,11 +251,31 @@ export default function ConfiguracoesPage() {
                       <div>
                         <label className="text-sm text-muted-foreground mb-2 block">Tema</label>
                         <div className="flex gap-3">
-                          <button className="flex-1 rounded-lg border-2 border-primary bg-zinc-900 p-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setTheme('dark')}
+                            aria-pressed={currentTheme === 'dark'}
+                            className={cn(
+                              'flex-1 rounded-lg border p-4 text-center transition-all',
+                              currentTheme === 'dark'
+                                ? 'border-primary ring-2 ring-primary/40 bg-zinc-900'
+                                : 'border-border bg-white/90 hover:border-primary/40'
+                            )}
+                          >
                             <span className="text-sm font-medium text-foreground">Escuro</span>
                           </button>
-                          <button className="flex-1 rounded-lg border border-border bg-white p-4 text-center">
-                            <span className="text-sm font-medium text-zinc-900">Claro</span>
+                          <button
+                            type="button"
+                            onClick={() => setTheme('light')}
+                            aria-pressed={currentTheme === 'light'}
+                            className={cn(
+                              'flex-1 rounded-lg border p-4 text-center transition-all',
+                              currentTheme === 'light'
+                                ? 'border-primary ring-2 ring-primary/40 bg-white'
+                                : 'border-border bg-zinc-900/80 hover:border-primary/40'
+                            )}
+                          >
+                            <span className="text-sm font-medium text-foreground">Claro</span>
                           </button>
                         </div>
                       </div>

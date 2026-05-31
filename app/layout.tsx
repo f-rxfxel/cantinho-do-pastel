@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { MenuItemsProvider } from '@/components/menu-items-provider'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -49,9 +50,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className="dark bg-background">
+    <html lang="pt-BR" suppressHydrationWarning className="bg-background">
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
-        <MenuItemsProvider>{children}</MenuItemsProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <MenuItemsProvider>{children}</MenuItemsProvider>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
